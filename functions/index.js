@@ -5,7 +5,8 @@ const app = require("express")();
 admin.initializeApp();
 const db = admin.firestore().collection("wardrobe");
 
-// Status: close - true
+
+// Status: closed - true
 // Status: open - false
 
 // Violated: yes - true
@@ -53,4 +54,3 @@ app.post("/wardrobe", function (request, response) {
 })
 
 exports.api = functions.https.onRequest(app)
-
