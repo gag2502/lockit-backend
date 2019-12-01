@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 const app = require("express")();
 
+
 admin.initializeApp();
 const db = admin.firestore().collection("wardrobe");
 
@@ -25,7 +26,8 @@ app.get("/wardrobe", function (request, response) {
           id: doc.id,
           status: doc.data().status,
           violated: doc.data().violated,
-          locked: doc.data().locked
+          locked: doc.data().locked,
+          date: doc.data().date
         })
       })
       response.json(wardrobe);
@@ -33,24 +35,19 @@ app.get("/wardrobe", function (request, response) {
 })
 
 app.post("/wardrobe", function (request, response) {
-  db.add({ status: request.body.status })
-  db.add({ locked: request.body.locked })
-   if (request.body.status == true && request.body.locked == true )
-      db.add({ violated: false })
-      .then(function () {
-        response.json({ message: "Close" });
-      })
-    if (request.body.status == true && request.body.locked == false )
-      db.add({ violated: false })
-      .then(function () {
-        response.json({ message: "Open" });
-      })
-    if (request.body.status == false && request.body.locked == true )
-      db.add({ violated: true })
-      .then(function () {
-        response.json({ message: "Violated" });
-      })
+  const violatedValue = false;
+  //const now = admin.firestore.Timestamp.now().toDate()
+  const now = admin.firestore.FieldValue.serverTimestamp();
 
+  if (request.body.status == false && request.body.locked == true )
+      violatedValue = true;
+  db.add({ status: request.body.status,
+          locked: request.body.locked,
+          violated: violatedValue,
+          date: now })
+          .then(function () {
+            response.json({ message: "Success" });
+          })
 })
 
 exports.api = functions.https.onRequest(app)
