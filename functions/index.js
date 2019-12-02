@@ -15,37 +15,41 @@ const db = admin.firestore().collection("wardrobe");
 // Locked: not - false
 
 app.get("/currentState", function(request, response) {
-  db.get().then(function(docs) {
-    let wardrobe = {};
+  db.orderBy("date", "desc")
+    .get()
+    .then(function(docs) {
+      let wardrobe = {};
 
-    if (!docs.empty) {
-      let doc = docs.docs[docs.size - 1];
-      wardrobe = {
-        status: doc.data().status,
-        violated: doc.data().violated,
-        locked: doc.data().locked,
-        date: doc.data().date
-      };
-    }
+      if (!docs.empty) {
+        let doc = docs.docs[docs.size - 1];
+        wardrobe = {
+          status: doc.data().status,
+          violated: doc.data().violated,
+          locked: doc.data().locked,
+          date: doc.data().date
+        };
+      }
 
-    response.json(wardrobe);
-  });
+      response.json(wardrobe);
+    });
 });
 
 app.get("/wardrobe", function(request, response) {
-  db.get().then(function(docs) {
-    let wardrobe = [];
-    docs.forEach(function(doc) {
-      wardrobe.push({
-        id: doc.id,
-        status: doc.data().status,
-        violated: doc.data().violated,
-        locked: doc.data().locked,
-        date: doc.data().date
+  db.orderBy("date", "desc")
+    .get()
+    .then(function(docs) {
+      let wardrobe = [];
+      docs.forEach(function(doc) {
+        wardrobe.push({
+          id: doc.id,
+          status: doc.data().status,
+          violated: doc.data().violated,
+          locked: doc.data().locked,
+          date: doc.data().date
+        });
       });
+      response.json(wardrobe);
     });
-    response.json(wardrobe);
-  });
 });
 
 app.post("/wardrobe", function(request, response) {
